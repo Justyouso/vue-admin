@@ -41,14 +41,17 @@
 </template>
 
 <script>
-import { reactive, ref, onMounted } from '@vue/composition-api'
+import { reactive } from '@vue/composition-api'
 import { stripscript, validateEmailPwdCode } from '@/utils/validate'
 export default {
   name: "login",
-  setup(props,{ refs }){
-    
-     //用户名验证
-    let validateUsername = (rule, value, callback) => {
+  setup(props,context){
+    // 说有数据都放在这里
+     
+  },
+  data(){
+    //用户名验证
+    var validateUsername = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('请输入用户名'));
       } else if (!validateEmailPwdCode(value,'email')){ // 验证邮箱各格式
@@ -59,10 +62,10 @@ export default {
     };
 
     //密码验证
-    let validatePassword = (rule, value, callback) => {
+    var validatePassword = (rule, value, callback) => {
       //过滤掉特殊字符
       // 重新绑定form表单中的password
-      ruleForm.password = stripscript(value)
+      this.ruleForm.password = stripscript(value)
       // 将过滤的字符重新赋值给value
       value = stripscript(value)
       if (!value) {
@@ -75,28 +78,28 @@ export default {
     };
 
     //重复密码验证
-    let validatePasswords = (rule, value, callback) => {
+    var validatePasswords = (rule, value, callback) => {
       // 如果模块值为login,则直接通过,因为login没有重复密码
-      if (model.value=='login') {callback();}
+      if (this.model=='login') {callback();}
 
       //过滤掉特殊字符
       // 重新绑定form表单中的passwords
-      ruleForm.passwords = stripscript(value)
+      this.ruleForm.passwords = stripscript(value)
       // 将过滤的字符重新赋值给value
       value = stripscript(value)
       if (!value) {
         return callback(new Error('请输入密码'));
-      }else if (value != ruleForm.password){ //验证重复密码
+      }else if (value != this.ruleForm.password){ //验证重复密码
         callback(new Error('重复密码错误'))
       }else{
         callback();
       }
     };
     //验证码验证
-    let validateCode = (rule, value, callback) => {
+    var validateCode = (rule, value, callback) => {
       //过滤掉特殊字符
       // 重新绑定form表单中的code
-      ruleForm.code = stripscript(value)
+      this.ruleForm.code = stripscript(value)
       // 将过滤的字符重新赋值给value
       value = stripscript(value)
       if (value === '') {
@@ -107,86 +110,67 @@ export default {
         callback();
       }
     };
-
-
-    /**
-     * 声明数据
-     */
-    // 登陆按钮
-    const menuTab = reactive([
-      {txt:"登陆",current: true, type:'login'},
-      {txt:"注册",current: false, type:'register'},
-    ])
-    // 模块值
-    const model= ref('login')
-    // 表单绑定数据
-    const ruleForm = reactive({
-      username: '',
-      password: '',
-      passwords:'',
-      code: ''
-    })
-    // 表单验证
-    const rules= reactive({
-      username: [
-        { validator: validateUsername, trigger: 'blur' }
-      ],
-      password: [
-        { validator: validatePassword, trigger: 'blur' }
-      ],
-      passwords: [
-        { validator: validatePasswords, trigger: 'blur' }
-      ],
-      code: [
-        { validator: validateCode, trigger: 'blur' }
+    return {
+      //模块值
+      model:'login',
+      //表单数据
+      ruleForm: {
+          username: '',
+          password: '',
+          passwords:'',
+          code: ''
+        },
+      // 验证规则
+      rules: {
+        username: [
+          { validator: validateUsername, trigger: 'blur' }
+        ],
+        password: [
+          { validator: validatePassword, trigger: 'blur' }
+        ],
+        passwords: [
+          { validator: validatePasswords, trigger: 'blur' }
+        ],
+        code: [
+          { validator: validateCode, trigger: 'blur' }
+        ]
+      },
+      // 菜单表
+      menuTab:[
+        {txt: "登陆","current":true,"type":'login'},
+        {txt: "注册","current":false,"type":'register'}
       ]
-    })
-
-    /**
-     * 声明函数
-     */
+    }
+  },
+  created(){},
+  mounted(){},
+  methods:{
     // 改变高光方法
-    const toggleMenu = (data =>{
+    toggleMenu(data){
       //初始化menuTab中的所有数据为false，for循环
-      menuTab.forEach(elem => {
+      this.menuTab.forEach(elem => {
         elem.current=false
       });
       //添加高光
       data.current=true
-      model.value =data.type
-    })
+      this.model =data.type
+    },
     // 提交
-    const submitForm = (formName =>{
-      refs[formName].validate((valid) => {
+    submitForm(formName) {
+      this.$refs[formName].validate((valid) => {
         if (valid) {
           alert('submit!');
         } else {
           console.log('error submit!!');
           return false;
         }
-      })
-    })
-
-    /**
-     * 生命周期
-     */
-    // 挂载完成后
-    onMounted(() =>{
-
-    })
-  
-    /**
-     * 返回数据
-     */
-    return {
-      menuTab,
-      model,
-      ruleForm,
-      rules,
-      toggleMenu,
-      submitForm,
+      });
+    },
+    //重置
+    resetForm(formName) {
+      this.$refs[formName].resetFields();
     }
-  }
+  },
 };
 </script>
 

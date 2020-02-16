@@ -186,7 +186,129 @@ export default {
       toggleMenu,
       submitForm,
     }
-  }
+  },
+  data(){
+    //用户名验证
+    var validateUsername = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请输入用户名'));
+      } else if (!validateEmailPwdCode(value,'email')){ // 验证邮箱各格式
+        callback(new Error('邮箱格式错误'))
+      }else{
+        callback();
+      }
+    };
+
+    //密码验证
+    var validatePassword = (rule, value, callback) => {
+      //过滤掉特殊字符
+      // 重新绑定form表单中的password
+      this.ruleForm.password = stripscript(value)
+      // 将过滤的字符重新赋值给value
+      value = stripscript(value)
+      if (!value) {
+        return callback(new Error('请输入密码'));
+      }else if (!validateEmailPwdCode(value,'pwd')){ //验证密码
+        callback(new Error('密码为6至20位数字+字母'))
+      }else{
+        callback();
+      }
+    };
+
+    //重复密码验证
+    var validatePasswords = (rule, value, callback) => {
+      // 如果模块值为login,则直接通过,因为login没有重复密码
+      if (this.model=='login') {callback();}
+
+      //过滤掉特殊字符
+      // 重新绑定form表单中的passwords
+      this.ruleForm.passwords = stripscript(value)
+      // 将过滤的字符重新赋值给value
+      value = stripscript(value)
+      if (!value) {
+        return callback(new Error('请输入密码'));
+      }else if (value != this.ruleForm.password){ //验证重复密码
+        callback(new Error('重复密码错误'))
+      }else{
+        callback();
+      }
+    };
+    //验证码验证
+    var validateCode = (rule, value, callback) => {
+      //过滤掉特殊字符
+      // 重新绑定form表单中的code
+      this.ruleForm.code = stripscript(value)
+      // 将过滤的字符重新赋值给value
+      value = stripscript(value)
+      if (value === '') {
+        callback(new Error('请输入验证码'));
+      } else if (!validateEmailPwdCode(value,'code')) {
+        callback(new Error('验证码格式错误'));
+      } else {
+        callback();
+      }
+    };
+    return {
+      //模块值
+      model:'login',
+      //表单数据
+      ruleForm: {
+          username: '',
+          password: '',
+          passwords:'',
+          code: ''
+        },
+      // 验证规则
+      rules: {
+        username: [
+          { validator: validateUsername, trigger: 'blur' }
+        ],
+        password: [
+          { validator: validatePassword, trigger: 'blur' }
+        ],
+        passwords: [
+          { validator: validatePasswords, trigger: 'blur' }
+        ],
+        code: [
+          { validator: validateCode, trigger: 'blur' }
+        ]
+      },
+      // 菜单表
+      menuTab:[
+        {txt: "登陆","current":true,"type":'login'},
+        {txt: "注册","current":false,"type":'register'}
+      ]
+    }
+  },
+  created(){},
+  // mounted(){},
+  // methods:{
+  //   // 改变高光方法
+  //   toggleMenu(data){
+  //     //初始化menuTab中的所有数据为false，for循环
+  //     this.menuTab.forEach(elem => {
+  //       elem.current=false
+  //     });
+  //     //添加高光
+  //     data.current=true
+  //     this.model =data.type
+  //   },
+  //   // 提交
+  //   submitForm(formName) {
+  //     this.$refs[formName].validate((valid) => {
+  //       if (valid) {
+  //         alert('submit!');
+  //       } else {
+  //         console.log('error submit!!');
+  //         return false;
+  //       }
+  //     });
+  //   },
+  //   //重置
+  //   resetForm(formName) {
+  //     this.$refs[formName].resetFields();
+  //   }
+  // },
 };
 </script>
 
