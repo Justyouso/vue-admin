@@ -108,7 +108,6 @@ export default {
       }
     };
 
-
     /**
      * 声明数据
      */
@@ -186,7 +185,7 @@ export default {
       toggleMenu,
       submitForm,
     }
-  }
+  },
 };
 </script>
 
