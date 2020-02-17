@@ -10,7 +10,7 @@ export function GetSms(data){
     // 左边data是变量名，右边data是参数名，参数名和变量名相同，可止写成一个
   })
 }
-
+ 
 /**
 * 获取用户角色
 */
