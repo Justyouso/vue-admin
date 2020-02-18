@@ -27,7 +27,7 @@
                <el-input id="code" v-model.number="ruleForm.code"></el-input>
             </el-col>
             <el-col :span="9"> 
-              <el-button type="success" class="block" @click="getSms()">获取验证码</el-button>
+              <el-button type="success" class="block" @click="getSms()" :disabled= codeButtonStatus.status>{{codeButtonStatus.text}}</el-button>
             </el-col>
           </el-row> 
         </el-form-item>
@@ -121,6 +121,13 @@ export default {
     const model= ref('login')
     // 登陆按钮禁用状态
     const loginButtonStatus = ref(true);
+    // 验证码按钮状态和显示文本
+    const codeButtonStatus = reactive(
+      {
+        status: false,
+        text: "发送验证码"
+      }
+    )
     // 表单绑定数据
     const ruleForm = reactive({
       username: '',
@@ -143,11 +150,13 @@ export default {
         { validator: validateCode, trigger: 'blur' }
       ]
     })
+    // 倒计时变量
+    const timer = ref(null)
 
     /**
      * 声明函数
      */
-    // 改变高光方法
+    // 切换登陆和注册按钮
     const toggleMenu = (data =>{
       //初始化menuTab中的所有数据为false，for循环
       menuTab.forEach(elem => {
@@ -155,6 +164,7 @@ export default {
       });
       //添加高光
       data.current=true
+      //改变model值
       model.value =data.type
       // 重置form表单
       refs.loginForm.resetFields();
@@ -172,14 +182,45 @@ export default {
         root.$message.error("邮箱格式错误!")
         return false
       }
-      // 请求接口
-      let requestData = {username: ruleForm.username, module: "login"}
-      GetSms(requestData).then(resoponse =>{
-        
-      }).catch(error =>{
-        console.log(error)
-      })
+
+      //验证码按钮禁用和显示文本
+      codeButtonStatus.status = true
+      codeButtonStatus.text = "发送中"
+      setTimeout(() => {
+        // 请求接口
+        let requestData = {username: ruleForm.username, module: model.value}
+        GetSms(requestData).then(resoponse =>{
+          let data = resoponse.data
+          root.$message({
+            message:data.message,
+            type:"success"
+          })
+          // 启动登陆或注册按钮
+          loginButtonStatus.value=false
+          // 调用定时器，倒计时
+          countDown(60)
+        }).catch(error =>{
+          console.log(error)
+        })
+      },3000)
     })
+
+    // 倒计时
+    const countDown= ((number) =>{
+      // setTimeout 只会执行一次
+      // setInterval 不断执行，需要条件才会停止
+      timer.value = setInterval(() =>{
+        number-- 
+        if (number === 0){
+          clearInterval(timer.value)
+          codeButtonStatus.status = false
+          codeButtonStatus.text = "重新发送"
+        }else{
+          codeButtonStatus.text = `倒计时${number}秒`
+        }
+      },1000)
+    })
+
 
     // 提交表单
     const submitForm = (formName =>{
@@ -208,6 +249,8 @@ export default {
       menuTab,
       model,
       loginButtonStatus,
+      codeButtonStatus,
+      timer,
       ruleForm,
       rules,
       toggleMenu,
