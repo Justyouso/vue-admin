@@ -4,7 +4,7 @@
       <ul class="menu-tab">
         <li v-for="item in menuTab" :key="item.id" :class="{'current': item.current}" @click="toggleMenu(item)">{{item.txt}}</li>
       </ul>
-      <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" class="login-form" size="medium">
+      <el-form :model="ruleForm" status-icon :rules="rules" ref="loginForm" class="login-form" size="medium">
         <el-form-item prop="username" class="item-form">
           <label for="username">邮箱</label>
           <el-input id="username" type="text" v-model="ruleForm.username" autocomplete="off"></el-input>
@@ -156,6 +156,8 @@ export default {
       //添加高光
       data.current=true
       model.value =data.type
+      // 重置form表单
+      refs.loginForm.resetFields();
     })
 
     // 获取验证码
