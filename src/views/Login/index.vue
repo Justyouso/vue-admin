@@ -6,25 +6,25 @@
       </ul>
       <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" class="login-form" size="medium">
         <el-form-item prop="username" class="item-form">
-          <label>邮箱</label>
-          <el-input type="text" v-model="ruleForm.username" autocomplete="off"></el-input>
+          <label for="username">邮箱</label>
+          <el-input id="username" type="text" v-model="ruleForm.username" autocomplete="off"></el-input>
         </el-form-item>
 
         <el-form-item prop="password" class="item-form">
-          <label>密码</label>
-          <el-input type="text" v-model="ruleForm.password" autocomplete="off" minlength="6" maxlength="20"></el-input>
+          <label for="password">密码</label>
+          <el-input id="password" type="text" v-model="ruleForm.password" autocomplete="off" minlength="6" maxlength="20"></el-input>
         </el-form-item>
 
         <el-form-item prop="passwords" class="item-form" v-show="model === 'register'">
-          <label>重复密码</label>
-          <el-input type="text" v-model="ruleForm.passwords" autocomplete="off" minlength="6" maxlength="20"></el-input>
+          <label for="passwords" >重复密码</label>
+          <el-input id="passwords" type="text" v-model="ruleForm.passwords" autocomplete="off" minlength="6" maxlength="20"></el-input>
         </el-form-item>
 
         <el-form-item prop="code" class="item-form">
-          <label>验证码</label>
+          <label for="code">验证码</label>
           <el-row :gutter="10">
             <el-col :span="15">
-               <el-input v-model.number="ruleForm.code"></el-input>
+               <el-input id="code" v-model.number="ruleForm.code"></el-input>
             </el-col>
             <el-col :span="9"> 
               <el-button type="success" class="block" @click="getSms()">获取验证码</el-button>
@@ -33,7 +33,7 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="danger" @click="submitForm('ruleForm')" class="login-btn block">提交</el-button>
+          <el-button type="danger" @click="submitForm('ruleForm')" class="login-btn block" :disabled="loginButtonStatus">{{ model === 'login' ? "登陆":"注册" }}</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -46,7 +46,7 @@ import { reactive, ref, onMounted } from '@vue/composition-api'
 import { stripscript, validateEmailPwdCode } from '@/utils/validate'
 export default {
   name: "login",
-  setup(props,{ refs }){
+  setup(props,{ refs, root }){
     
      //用户名验证
     let validateUsername = (rule, value, callback) => {
@@ -119,6 +119,8 @@ export default {
     ])
     // 模块值
     const model= ref('login')
+    // 登陆按钮禁用状态
+    const loginButtonStatus = ref(true);
     // 表单绑定数据
     const ruleForm = reactive({
       username: '',
@@ -155,10 +157,26 @@ export default {
       data.current=true
       model.value =data.type
     })
-    // 获取验证码
 
+    // 获取验证码
     const getSms = (()=>{
-      GetSms({username:ruleForm.username})
+      // 验证邮箱
+      if (ruleForm.username == ''){
+        root.$message.error("邮箱不能为空!")
+        return false
+      }
+      // 验证邮箱格式
+      if (!validateEmailPwdCode(ruleForm.username,'email')){
+        root.$message.error("邮箱格式错误!")
+        return false
+      }
+      // 请求接口
+      let requestData = {username: ruleForm.username, module: "login"}
+      GetSms(requestData).then(resoponse =>{
+        
+      }).catch(error =>{
+        console.log(error)
+      })
     })
 
     // 提交表单
@@ -187,6 +205,7 @@ export default {
     return {
       menuTab,
       model,
+      loginButtonStatus,
       ruleForm,
       rules,
       toggleMenu,

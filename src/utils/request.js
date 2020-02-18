@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { Message } from 'element-ui';
 
 // 获取开发环境中 vue.config.js中的proxy中的target
 const BASEURL =  process.env.NODE_ENV === 'production' ? 'dist' : '/devApi';
@@ -22,7 +23,14 @@ service.interceptors.request.use(function (config) {
 // 添加响应拦截器
 service.interceptors.response.use(function (response) {
   // 对响应数据做点什么
-  return response;
+  // 对正常返回的错误数据进行响应拦截
+  let data = response.data
+  if (data.resCode != 0){
+    Message.error(data.message);
+    return Promise.reject(data);
+  }else{
+    return response;
+  }
 }, function (error) {
   // 对响应错误做点什么
   return Promise.reject(error);
