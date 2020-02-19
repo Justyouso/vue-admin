@@ -24,7 +24,7 @@
           <label for="code">验证码</label>
           <el-row :gutter="10">
             <el-col :span="15">
-               <el-input id="code" v-model.number="ruleForm.code"></el-input>
+               <el-input id="code" v-model="ruleForm.code"></el-input>
             </el-col>
             <el-col :span="9"> 
               <el-button type="success" class="block" @click="getSms()" :disabled= codeButtonStatus.status>{{codeButtonStatus.text}}</el-button>
@@ -33,7 +33,7 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="danger" @click="submitForm('ruleForm')" class="login-btn block" :disabled="loginButtonStatus">{{ model === 'login' ? "登陆":"注册" }}</el-button>
+          <el-button type="danger" @click="submitForm('loginForm')" class="login-btn block" :disabled="loginButtonStatus">{{ model === 'login' ? "登陆":"注册" }}</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import { GetSms } from '@/api/login'
+import { GetSms, Register, Login } from '@/api/login'
 import { reactive, ref, onMounted } from '@vue/composition-api'
 import { stripscript, validateEmailPwdCode } from '@/utils/validate'
 export default {
@@ -152,7 +152,7 @@ export default {
     })
     // 倒计时变量
     const timer = ref(null)
-
+/***************************************************************************** */
     /**
      * 声明函数
      */
@@ -186,29 +186,34 @@ export default {
       //验证码按钮禁用和显示文本
       codeButtonStatus.status = true
       codeButtonStatus.text = "发送中"
-      setTimeout(() => {
-        // 请求接口
-        let requestData = {username: ruleForm.username, module: model.value}
-        GetSms(requestData).then(resoponse =>{
-          let data = resoponse.data
-          root.$message({
-            message:data.message,
-            type:"success"
-          })
-          // 启动登陆或注册按钮
-          loginButtonStatus.value=false
-          // 调用定时器，倒计时
-          countDown(60)
-        }).catch(error =>{
-          console.log(error)
+      
+      // 请求接口
+      let requestData = {username: ruleForm.username, module: model.value}
+      GetSms(requestData).then(resoponse =>{
+        let data = resoponse.data
+        root.$message({
+          message:data.message,
+          type:"success"
         })
-      },3000)
+        // 启动登陆或注册按钮
+        loginButtonStatus.value=false
+        // 调用定时器，倒计时
+        countDown(60)
+      }).catch(error =>{
+        codeButtonStatus.status=false
+        codeButtonStatus.text='发送验证码'
+        console.log(error)
+      })
     })
 
     // 倒计时
     const countDown= ((number) =>{
       // setTimeout 只会执行一次
       // setInterval 不断执行，需要条件才会停止
+
+      // 判断定时器是否存在，若有则先清除，为了防止定时器多次出现
+      if(timer.value){ clearInterval(timer.value)}
+      // 添加 定时器
       timer.value = setInterval(() =>{
         number-- 
         if (number === 0){
@@ -221,12 +226,20 @@ export default {
       },1000)
     })
 
+    // 点击注册时跳转登陆清除倒计时以及将验证码恢复初始状态
+    const clearCountDown = (() =>{
+      codeButtonStatus.status = false,
+      codeButtonStatus.text = '获取验证码'
+      clearInterval(timer.value)
+    })
 
     // 提交表单
     const submitForm = (formName =>{
+      console.log()
       refs[formName].validate((valid) => {
         if (valid) {
-          alert('submit!');
+          // 判断是登陆还是注册 
+          model.value === 'login' ? login():register() 
         } else {
           console.log('error submit!!');
           return false;
@@ -234,6 +247,51 @@ export default {
       })
     })
 
+    // 登陆操作
+    const login= (() =>{
+      let requestData = {
+            username: ruleForm.username,
+            password: ruleForm.password,
+            code: ruleForm.code,
+            module: 'login'
+          }
+      Login(requestData).then(responce =>{
+      let data = resoponse.data
+      root.$message({
+        message:data.message,
+        type:"success"
+      })
+      // 清除验证码按钮和倒计时
+      clearCountDown()
+      // 跳转到其他页面
+      }).catch(error =>{
+
+      })
+    })
+
+    // 注册操作
+    const register= (() =>{
+      let requestData = {
+            username: ruleForm.username,
+            password: ruleForm.password,
+            code: ruleForm.code,
+            module: 'register'
+          }
+      Register(requestData).then(responce =>{
+        let data = resoponse.data
+        root.$message({
+          message:data.message,
+          type:"success"
+        })
+        // 清除输入框内容
+        toggleMenu(menuTab[0])
+        // 清除验证码按钮和倒计时
+        clearCountDown()
+      }).catch(error =>{
+
+      })
+    })
+/*********************************************************************************** */
     /**
      * 生命周期
      */
@@ -250,7 +308,6 @@ export default {
       model,
       loginButtonStatus,
       codeButtonStatus,
-      timer,
       ruleForm,
       rules,
       toggleMenu,
