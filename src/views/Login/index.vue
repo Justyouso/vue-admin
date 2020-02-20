@@ -41,6 +41,7 @@
 </template>
 
 <script>
+import sha1 from 'js-sha1'
 import { GetSms, Register, Login } from '@/api/login'
 import { reactive, ref, onMounted } from '@vue/composition-api'
 import { stripscript, validateEmailPwdCode } from '@/utils/validate'
@@ -251,7 +252,7 @@ export default {
     const login= (() =>{
       let requestData = {
             username: ruleForm.username,
-            password: ruleForm.password,
+            password: sha1(ruleForm.password),
             code: ruleForm.code,
             module: 'login'
           }
@@ -273,7 +274,7 @@ export default {
     const register= (() =>{
       let requestData = {
             username: ruleForm.username,
-            password: ruleForm.password,
+            password: sha1(ruleForm.password),
             code: ruleForm.code,
             module: 'register'
           }
