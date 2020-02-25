@@ -16,6 +16,19 @@ const routes = [
     component: () => import("../views/Login/index.vue")
   },
   {
+    path: "/console",
+    name: "Console",
+    component: () => import("../views/Layout/index.vue"),
+    // 在父component中（Layout/index）会展示children中的第一个
+    children: [
+      {
+        path: "/console",
+        name: "Console",
+        component: () => import("../views/Console/index.vue")
+      }
+    ]
+  },
+  {
     path: "/about",
     name: "About",
     // route level code-splitting

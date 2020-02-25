@@ -154,8 +154,10 @@ export default {
     // 倒计时变量
     const timer = ref(null)
 /***************************************************************************** */
+
     /**
      * 声明函数
+     * 1. 尽量提出公共方法，一个方法只一件事
      */
     // 切换登陆和注册按钮
     const toggleMenu = (data =>{
@@ -168,7 +170,19 @@ export default {
       //改变model值
       model.value =data.type
       // 重置form表单
+      resetForm()
+      // 发送验证码后点击切换按钮，需要清除定时器和更改验证码状态
+      clearCountDown()
+    })
+    // 重置form表单
+    const resetForm = (() =>{
       refs.loginForm.resetFields();
+    })
+
+    // 更新验证码按钮信息
+    const updateCodeButtonStatus = ((params) =>{
+      codeButtonStatus.status = params.status
+      codeButtonStatus.text = params.text
     })
 
     // 获取验证码
@@ -185,8 +199,7 @@ export default {
       }
 
       //验证码按钮禁用和显示文本
-      codeButtonStatus.status = true
-      codeButtonStatus.text = "发送中"
+      updateCodeButtonStatus({status:true,text:"发送中"})
       
       // 请求接口
       let requestData = {username: ruleForm.username, module: model.value}
@@ -201,8 +214,7 @@ export default {
         // 调用定时器，倒计时
         countDown(60)
       }).catch(error =>{
-        codeButtonStatus.status=false
-        codeButtonStatus.text='发送验证码'
+        updateCodeButtonStatus({status:false,text:"发送验证码"})
         console.log(error)
       })
     })
@@ -219,18 +231,16 @@ export default {
         number-- 
         if (number === 0){
           clearInterval(timer.value)
-          codeButtonStatus.status = false
-          codeButtonStatus.text = "重新发送"
+          updateCodeButtonStatus({status:false,text:"重新发送"})
         }else{
-          codeButtonStatus.text = `倒计时${number}秒`
+          updateCodeButtonStatus({status:true,text:`倒计时${number}秒`})
         }
       },1000)
     })
 
     // 点击注册时跳转登陆清除倒计时以及将验证码恢复初始状态
     const clearCountDown = (() =>{
-      codeButtonStatus.status = false,
-      codeButtonStatus.text = '获取验证码'
+      updateCodeButtonStatus({status:false,text:"获取验证码"})
       clearInterval(timer.value)
     })
 
@@ -257,14 +267,17 @@ export default {
             module: 'login'
           }
       Login(requestData).then(responce =>{
-      let data = resoponse.data
-      root.$message({
-        message:data.message,
-        type:"success"
-      })
-      // 清除验证码按钮和倒计时
-      clearCountDown()
-      // 跳转到其他页面
+        // let data = resoponse.data
+        // root.$message({
+        //   message:data.message,
+        //   type:"success"
+        // })
+        // 清除验证码按钮和倒计时
+        clearCountDown()
+        // 跳转到其他页面
+        root.$router.push({
+          name: "Console"
+        })
       }).catch(error =>{
 
       })
@@ -278,14 +291,17 @@ export default {
             code: ruleForm.code,
             module: 'register'
           }
+      // console.log(menuTab[0])
+      // toggleMenu(menuTab[0])
       Register(requestData).then(responce =>{
-        let data = resoponse.data
-        root.$message({
-          message:data.message,
-          type:"success"
-        })
+        // let data = resoponse.data
+        // root.$message({
+        //   message:data.message,
+        //   type:"success"
+        // })
         // 清除输入框内容
         toggleMenu(menuTab[0])
+       
         // 清除验证码按钮和倒计时
         clearCountDown()
       }).catch(error =>{
