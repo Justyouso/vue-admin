@@ -1,7 +1,6 @@
 <template>
   <div id="main-wrap">
     <router-view />
-    内容区
   </div>
 </template>
 
