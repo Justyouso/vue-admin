@@ -1,6 +1,6 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import Home from "../views/Home.vue";
+import Layout from "../views/Layout";
 
 Vue.use(VueRouter);
 
@@ -27,9 +27,10 @@ const routes = [
     path: "/console",
     name: "Cosole",
     meta: {
-      name: '控制台'
+      name: '控制台',
+      icon: 'el-icon-s-help'
     },
-    component: () => import("../views/Layout/index.vue"),
+    component: Layout,
     // 在父component中（Layout/index）会展示children中的第一个
     children: [
       {
@@ -49,7 +50,7 @@ const routes = [
     meta: {
       name: '信息管理'
     },
-    component: () => import("../views/Layout/index.vue"),
+    component: Layout,
     // 在父component中（Layout/index）会展示children中的第一个
     children: [
       {
@@ -77,7 +78,7 @@ const routes = [
     meta: {
       name: '用户管理'
     },
-    component: () => import("../views/Layout/index.vue"),
+    component: Layout,
     // 在父component中（Layout/index）会展示children中的第一个
     children: [
       {

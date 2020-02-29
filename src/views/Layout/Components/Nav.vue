@@ -13,10 +13,10 @@
     > 
       <!-- template 不能被解析出来，所以key不能在template里面 -->
       <template v-for="(item,index) in routers">
-        <el-submenu  v-if="!item.hidden" :key="item.id" :index="index">
+        <el-submenu  v-if="!item.hidden" :key="item.id" :index="index + ''">
           <!-- 一级菜单 -->
           <template slot="title">
-            <i class="el-icon-location"></i>
+            <i :class="item.meta.icon"></i>
             <span slot="title">{{item.meta.name}}</span>
           </template>
           <!-- 子级菜单 -->
@@ -24,7 +24,9 @@
         </el-submenu>
        </template>
     </el-menu>
-  </div>
+    <!-- 父组件通过属性传值给子组件 -->
+    <svg-icon iconClass="menu" className="menu"/>
+  </div> 
 </template>
 
 <script>
@@ -34,16 +36,15 @@ export default {
   setup(props, { root }) {
     /** 声明变量 */
     const isCollapse = ref(false);
-    // 获取路由
+    // 获取所有路由
     const routers = reactive(root.$router.options.routes);
-    console.log(root.$router.options.routes);
     /** 定义方法 */
     const handleOpen = (key, keyPath) => {
-      console.log(key, keyPath);
+      
     };
 
     const handleClose = (key, keyPath) => {
-      console.log(key, keyPath);
+      
     };
     /**
      * 返回
