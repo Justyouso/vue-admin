@@ -25,10 +25,10 @@ const routes = [
    // 控制台
    {
     path: "/console",
-    name: "Cosole",
+    name: "Console",
     meta: {
       name: '控制台',
-      icon: 'el-icon-s-help'
+      icon: 'console'
     },
     component: Layout,
     // 在父component中（Layout/index）会展示children中的第一个
@@ -48,7 +48,8 @@ const routes = [
     path: "/info",
     name: "Info",
     meta: {
-      name: '信息管理'
+      name: '信息管理',
+      icon: 'info'
     },
     component: Layout,
     // 在父component中（Layout/index）会展示children中的第一个
@@ -76,7 +77,8 @@ const routes = [
     path: "/user",
     name: "User",
     meta: {
-      name: '用户管理'
+      name: '用户管理',
+      icon: 'user'
     },
     component: Layout,
     // 在父component中（Layout/index）会展示children中的第一个

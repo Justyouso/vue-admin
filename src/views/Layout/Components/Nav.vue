@@ -16,7 +16,10 @@
         <el-submenu  v-if="!item.hidden" :key="item.id" :index="index + ''">
           <!-- 一级菜单 -->
           <template slot="title">
-            <i :class="item.meta.icon"></i>
+            <!-- <i :class="item.meta.icon"></i> -->
+            <!-- 图标 -->
+            <!-- 父组件通过属性传值给子组件 -->
+            <svg-icon :iconClass="item.meta.icon" :className="item.meta.icon"/>
             <span slot="title">{{item.meta.name}}</span>
           </template>
           <!-- 子级菜单 -->
@@ -24,8 +27,7 @@
         </el-submenu>
        </template>
     </el-menu>
-    <!-- 父组件通过属性传值给子组件 -->
-    <svg-icon iconClass="menu" className="menu"/>
+    
   </div> 
 </template>
 
@@ -68,5 +70,11 @@ export default {
   width: $navMenu;
   height: 100vh;
   background-color: #344a5f;
+  
+  // 设置svg大小
+  svg {
+    font-size: 20px;
+    margin-right: 10px;
+  }
 }
 </style>
